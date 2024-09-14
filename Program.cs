@@ -66,7 +66,7 @@ namespace ArrayPoolExtensions
         {
             string text = "Hello, World";
             string replaceable = "or";
-            string substitute = "zz";
+            string substitute = "z";
             int startPosition = 0;
             bool isFound = false;
             int countHit = 0;
@@ -75,10 +75,33 @@ namespace ArrayPoolExtensions
             ReadOnlySpan<char> rSpan = replaceable.AsSpan();
             ReadOnlySpan<char> sSpan = substitute.AsSpan();
 
-            startPosition = chars.IndexOf(rSpan);
-            Console.WriteLine($"startPosition={startPosition}");
-            var lastPosition = chars.LastIndexOf(rSpan);
-            Console.WriteLine($"lastPosition={lastPosition}");
+            isFound = chars.ContainsAny(rSpan);
+            if (isFound)
+            {
+                Console.WriteLine($"isFound={isFound}");
+                startPosition = chars.IndexOf(rSpan);
+                Console.WriteLine($"startPosition={startPosition}");
+                //var lastPosition = chars.LastIndexOf(rSpan);
+                //Console.WriteLine($"lastPosition={lastPosition}");
+                char[] newCars = new char[chars.Length - rSpan.Length + sSpan.Length];
+                Span<char> newSpan = new Span<char>(newCars);
+                Console.WriteLine($"newSpan.Length={newSpan.Length}");
+                for (int i = 0; i < startPosition; i++)
+                {
+                    newSpan[i] = chars[i];
+                }
+                Console.WriteLine($"newSpan={newSpan.ToString()}");
+                for (int j = 0; j < sSpan.Length; j++)
+                {
+                    newSpan[j + startPosition] = sSpan[j];
+                }
+                Console.WriteLine($"newSpan={newSpan.ToString()}");
+                for (int j = startPosition + rSpan.Length; j < chars.Length; j++)
+                {
+                    newSpan[j - rSpan.Length + sSpan.Length] = chars[j];
+                }
+                Console.WriteLine($"newSpan={newSpan.ToString()}");
+            }
         }
     }
 
