@@ -69,7 +69,7 @@ namespace ArrayPoolExtensions
             string substitute = "z";
             int startPosition = 0;
             bool isFound = false;
-            int countHit = 0;
+            //int countHit = 0;
             //ReadOnlySpan<char> chars = text.AsSpan();
             Span<char> chars = new Span<char>(text.ToArray());
             ReadOnlySpan<char> rSpan = replaceable.AsSpan();
