@@ -6,7 +6,16 @@ namespace ArrayPoolExtensions
     {
         static void Main(string[] args)
         {
-            SpanIndexOf();
+            string text = "The quick brown fox jumps over the lazy dog";
+            string replaceable = "fox";
+            string substitute = "ELEPHANT";
+            Span<char> chars = SpanIndexOf(text, replaceable, substitute);
+            replaceable = "dog";
+            substitute = "WHILE";
+            chars = SpanIndexOf(chars.ToString(), replaceable, substitute);
+            replaceable = "quick";
+            substitute = "big";
+            chars = SpanIndexOf(chars.ToString(), replaceable, substitute);
         }
 
         public static void SpanStandard()
@@ -62,11 +71,12 @@ namespace ArrayPoolExtensions
                 }
             }
         }
-        public static void SpanIndexOf()
+        public static Span<char> SpanIndexOf(string text, string replaceable, string substitute)
         {
-            string text = "Hello, World";
-            string replaceable = "or";
-            string substitute = "z";
+            //string text = "Hello, World";
+            //string text = "The quick brown fox jumps over the lazy dog";
+            //string replaceable = "fox";
+            //string substitute = "ELEPHANT";
             int startPosition = 0;
             bool isFound = false;
             //int countHit = 0;
@@ -75,8 +85,9 @@ namespace ArrayPoolExtensions
             ReadOnlySpan<char> rSpan = replaceable.AsSpan();
             ReadOnlySpan<char> sSpan = substitute.AsSpan();
 
-            isFound = chars.ContainsAny(rSpan);
-            if (isFound)
+            //isFound = chars.ContainsAny(rSpan);
+            startPosition = chars.IndexOf(rSpan);
+            if (startPosition>=0)
             {
                 Console.WriteLine($"isFound={isFound}");
                 startPosition = chars.IndexOf(rSpan);
@@ -90,18 +101,20 @@ namespace ArrayPoolExtensions
                 {
                     newSpan[i] = chars[i];
                 }
-                Console.WriteLine($"newSpan={newSpan.ToString()}");
+                Console.WriteLine($"1 newSpan={newSpan.ToString()}");
                 for (int j = 0; j < sSpan.Length; j++)
                 {
                     newSpan[j + startPosition] = sSpan[j];
                 }
-                Console.WriteLine($"newSpan={newSpan.ToString()}");
+                Console.WriteLine($"2 newSpan={newSpan.ToString()}");
                 for (int j = startPosition + rSpan.Length; j < chars.Length; j++)
                 {
                     newSpan[j - rSpan.Length + sSpan.Length] = chars[j];
                 }
-                Console.WriteLine($"newSpan={newSpan.ToString()}");
+                Console.WriteLine($"3 newSpan={newSpan.ToString()}");
+                return newSpan;
             }
+            return chars;
         }
     }
 
