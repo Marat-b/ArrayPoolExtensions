@@ -16,7 +16,7 @@ namespace ArrayPoolExtensions
             replaceable = "quick";
             substitute = "big";
             //chars = SpanIndexOf(chars.ToString(), replaceable, substitute);
-            MemoryPoolFunc(text, replaceable, substitute);
+            ArrayPoolFunc(text, replaceable, substitute);
         }
 
         public static void SpanStandard()
@@ -118,7 +118,7 @@ namespace ArrayPoolExtensions
             return chars;
         }
 
-        public static void MemoryPoolFunc(in string text, in string replaceable, in string substitute)
+        public static void ArrayPoolFunc(in string text, in string replaceable, in string substitute)
         {
             var cArr = text.ToCharArray();
             var pool = ArrayPool<char>.Shared.Rent(text.Length - replaceable.Length + substitute.Length);
