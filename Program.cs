@@ -9,13 +9,14 @@ namespace ArrayPoolExtensions
             string text = "The quick brown fox jumps over the lazy dog";
             string replaceable = "fox";
             string substitute = "ELEPHANT";
-            Span<char> chars = SpanIndexOf(text, replaceable, substitute);
+            //Span<char> chars = SpanIndexOf(text, replaceable, substitute);
             replaceable = "dog";
             substitute = "WHILE";
-            chars = SpanIndexOf(chars.ToString(), replaceable, substitute);
+            //chars = SpanIndexOf(chars.ToString(), replaceable, substitute);
             replaceable = "quick";
             substitute = "big";
-            chars = SpanIndexOf(chars.ToString(), replaceable, substitute);
+            //chars = SpanIndexOf(chars.ToString(), replaceable, substitute);
+            MemoryPoolFunc(text, replaceable, substitute);
         }
 
         public static void SpanStandard()
@@ -71,7 +72,7 @@ namespace ArrayPoolExtensions
                 }
             }
         }
-        public static Span<char> SpanIndexOf(string text, string replaceable, string substitute)
+        public static Span<char> SpanIndexOf(in string text,in string replaceable,in string substitute)
         {
             //string text = "Hello, World";
             //string text = "The quick brown fox jumps over the lazy dog";
@@ -115,6 +116,14 @@ namespace ArrayPoolExtensions
                 return newSpan;
             }
             return chars;
+        }
+
+        public static void MemoryPoolFunc(in string text, in string replaceable, in string substitute)
+        {
+            var cArr = text.ToCharArray();
+            var pool = ArrayPool<char>.Shared.Rent(text.Length - replaceable.Length + substitute.Length);
+            pool[0] = 'Z';
+            Console.WriteLine(pool[0]);
         }
     }
 
