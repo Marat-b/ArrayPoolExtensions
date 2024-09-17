@@ -122,6 +122,7 @@ namespace ArrayPoolExtensions
         {
             var cArr = text.ToCharArray();
             var pool = ArrayPool<char>.Shared.Rent(text.Length - replaceable.Length + substitute.Length);
+            var span = pool.AsSpan<char>();
             pool[0] = 'Z';
             Console.WriteLine(pool[0]);
         }
