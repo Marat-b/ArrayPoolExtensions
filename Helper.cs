@@ -7,7 +7,8 @@ using System.Text;
 using System.Threading.Tasks;
 
 //namespace ArrayPoolExtensions
-//{
+public class Helper
+{
     static byte[] FromBase64String(string value, out int bytesWritten)
     {
         var buffer = ArrayPool<byte>.Shared.Rent(Encoding.UTF8.GetMaxByteCount(value.Length));
@@ -29,4 +30,4 @@ using System.Threading.Tasks;
         }
         return decodedBuffer;
     }
-//}
+}
