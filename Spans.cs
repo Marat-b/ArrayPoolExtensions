@@ -1,4 +1,5 @@
 ﻿using BenchmarkDotNet.Attributes;
+using CommunityToolkit.HighPerformance.Buffers;
 using System;
 using System.Buffers;
 using System.Collections.Generic;
@@ -9,20 +10,28 @@ using System.Threading.Tasks;
 namespace ArrayPoolExtensions
 {
     [MemoryDiagnoser]
+    [RankColumn]
     public class SpanCls
     {
-        //public SpanCls()
-        //{
-        string text = "The quick brown fox jumps over the lazy dog";
-        string replaceable = "fox";
-        string substitute = "ELEPHANT";
-        //Span<char> chars = SpanIndexOf(text, replaceable, substitute);
-        //replaceable = "dog";
-        //substitute = "WHILE";
-        ////chars = SpanIndexOf(chars.ToString(), replaceable, substitute);
-        //replaceable = "quick";
-        //substitute = "big";
-        //}
+        string text = String.Empty;
+        string replaceable = String.Empty;
+        string substitute = String.Empty;
+        char[] arr = [];
+        
+
+        public SpanCls()
+        {
+            text = "The quick brown fox jumps over the lazy dog 2. The quick brown fox jumps over the lazy dog 3. The quick brown fox jumps over the lazy dog 4. The quick brown fox jumps over the lazy dog 5. The quick brown fox jumps over the lazy dog 6. The quick brown fox jumps over the lazy dog 7. The quick brown fox jumps over the lazy dog 8. The quick brown fox jumps over the lazy dog 9. The quick brown fox jumps over the lazy dog";
+           replaceable = "fox";
+           substitute = "ELEPHANT";
+            //Span<char> chars = SpanIndexOf(text, replaceable, substitute);
+            //replaceable = "dog";
+            //substitute = "WHILE";
+            ////chars = SpanIndexOf(chars.ToString(), replaceable, substitute);
+            //replaceable = "quick";
+            //substitute = "big";
+            arr = text.ToArray();
+        }
         //public  Span<char> SpanIndexOf(in string text, in string replaceable, in string substitute)
         [Benchmark]
         public void SpanIndexOf()
@@ -35,7 +44,7 @@ namespace ArrayPoolExtensions
             bool isFound = false;
             //int countHit = 0;
             //ReadOnlySpan<char> chars = text.AsSpan();
-            Span<char> chars = new Span<char>(text.ToArray());
+            Span<char> chars = new Span<char>(arr);
             ReadOnlySpan<char> rSpan = replaceable.AsSpan();
             ReadOnlySpan<char> sSpan = substitute.AsSpan();
 
@@ -72,6 +81,108 @@ namespace ArrayPoolExtensions
         }
 
         [Benchmark]
+        public void SpanIndexOfWithArrayPool()
+        {
+            //string text = "Hello, World";
+            //string text = "The quick brown fox jumps over the lazy dog";
+            //string replaceable = "fox";
+            //string substitute = "ELEPHANT";
+            int startPosition = 0;
+            bool isFound = false;
+            //int countHit = 0;
+            //ReadOnlySpan<char> chars = text.AsSpan();
+            Span<char> chars = new Span<char>(arr);
+            ReadOnlySpan<char> rSpan = replaceable.AsSpan();
+            ReadOnlySpan<char> sSpan = substitute.AsSpan();
+
+            //isFound = chars.ContainsAny(rSpan);
+            startPosition = chars.IndexOf(rSpan);
+            if (startPosition >= 0)
+            {
+                //Console.WriteLine($"isFound={isFound}");
+                startPosition = chars.IndexOf(rSpan);
+                //Console.WriteLine($"startPosition={startPosition}");
+                //var lastPosition = chars.LastIndexOf(rSpan);
+                //Console.WriteLine($"lastPosition={lastPosition}");
+                //char[] newCars = new char[chars.Length - rSpan.Length + sSpan.Length];
+                var pool = ArrayPool<char>.Shared;
+                char[] newChars = pool.Rent(chars.Length - rSpan.Length + sSpan.Length);
+                Span<char> newSpan = new Span<char>(newChars);
+                //Console.WriteLine($"newSpan.Length={newSpan.Length}");
+                for (int i = 0; i < startPosition; i++)
+                {
+                    newSpan[i] = chars[i];
+                }
+                //Console.WriteLine($"1 newSpan={newSpan.ToString()}");
+                for (int j = 0; j < sSpan.Length; j++)
+                {
+                    newSpan[j + startPosition] = sSpan[j];
+                }
+                //Console.WriteLine($"2 newSpan={newSpan.ToString()}");
+                for (int j = startPosition + rSpan.Length; j < chars.Length; j++)
+                {
+                    newSpan[j - rSpan.Length + sSpan.Length] = chars[j];
+                }
+
+                pool.Return(newChars);
+                //Console.WriteLine($"3 newSpan={newSpan.ToString()}");
+                //return newSpan;
+            }
+            //return chars;
+        }
+
+        [Benchmark]
+        public void SpanIndexOfWithArrayPoolExtinsion()
+        {
+            //string text = "Hello, World";
+            //string text = "The quick brown fox jumps over the lazy dog";
+            //string replaceable = "fox";
+            //string substitute = "ELEPHANT";
+            int startPosition = 0;
+            bool isFound = false;
+            //int countHit = 0;
+            //ReadOnlySpan<char> chars = text.AsSpan();
+            Span<char> chars = new Span<char>(arr);
+            ReadOnlySpan<char> rSpan = replaceable.AsSpan();
+            ReadOnlySpan<char> sSpan = substitute.AsSpan();
+
+            //isFound = chars.ContainsAny(rSpan);
+            startPosition = chars.IndexOf(rSpan);
+            if (startPosition >= 0)
+            {
+                //Console.WriteLine($"isFound={isFound}");
+                startPosition = chars.IndexOf(rSpan);
+                //Console.WriteLine($"startPosition={startPosition}");
+                //var lastPosition = chars.LastIndexOf(rSpan);
+                //Console.WriteLine($"lastPosition={lastPosition}");
+                //char[] newCars = new char[chars.Length - rSpan.Length + sSpan.Length];
+                var pool = ArrayPool<char>.Shared;
+                var arraySegmentHandle = pool.RentSegment<char>(chars.Length - rSpan.Length + sSpan.Length);
+                Span<char> newSpan = new Span<char>(arraySegmentHandle.Value.Array);
+                //Console.WriteLine($"newSpan.Length={newSpan.Length}");
+                for (int i = 0; i < startPosition; i++)
+                {
+                    newSpan[i] = chars[i];
+                }
+                //Console.WriteLine($"1 newSpan={newSpan.ToString()}");
+                for (int j = 0; j < sSpan.Length; j++)
+                {
+                    newSpan[j + startPosition] = sSpan[j];
+                }
+                //Console.WriteLine($"2 newSpan={newSpan.ToString()}");
+                for (int j = startPosition + rSpan.Length; j < chars.Length; j++)
+                {
+                    newSpan[j - rSpan.Length + sSpan.Length] = chars[j];
+                }
+                arraySegmentHandle.Dispose();
+                //pool.Return(newChars);
+                //Console.WriteLine($"3 newSpan={newSpan.ToString()}");
+                //return newSpan;
+            }
+            //return chars;
+        }
+
+        [Benchmark]
         public void SpanStandard()
         {
             //string text = "Hello, World";
@@ -81,7 +192,7 @@ namespace ArrayPoolExtensions
             bool isFound = false;
             int countHit = 0;
             //ReadOnlySpan<char> chars = text.AsSpan();
-            Span<char> chars = new Span<char>(text.ToArray());
+            Span<char> chars = new Span<char>(arr);
             ReadOnlySpan<char> rSpan = replaceable.AsSpan();
             ReadOnlySpan<char> sSpan = substitute.AsSpan();
             //chars[0] = 'Z';
@@ -140,6 +251,16 @@ namespace ArrayPoolExtensions
         public void StringReplace()
         {
             string text2 = text.Replace(replaceable, substitute);
+        }
+
+        [Benchmark]
+        public void StringPoolz()
+        {
+            //var strPool = new StringPool();
+            //string textPool = StringPool.Shared.GetOrAdd(text);
+            string text2 = StringPool.Shared.GetOrAdd(text.Replace(replaceable, substitute));
+            //Console.WriteLine(text2);
+            StringPool.Shared.Reset();
         }
     }
 }

@@ -11,6 +11,10 @@ namespace ArrayPoolExtensions
 
             //chars = SpanIndexOf(chars.ToString(), replaceable, substitute);
             //ArrayPoolFunc(text, replaceable, substitute);
+
+            //SpanCls spanCls = new SpanCls();
+            //spanCls.StringPoolz();
+
             BenchmarkRunner.Run<SpanCls>();
             //Console.ReadLine();
         }
