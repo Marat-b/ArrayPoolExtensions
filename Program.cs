@@ -13,7 +13,7 @@ namespace ArrayPoolExtensions
             //ArrayPoolFunc(text, replaceable, substitute);
 
             //SpanCls spanCls = new SpanCls();
-            //spanCls.StringPoolz();
+            //spanCls.SpanIndexOfWithArrayPoolCount();
 
             BenchmarkRunner.Run<SpanCls>();
             //Console.ReadLine();
