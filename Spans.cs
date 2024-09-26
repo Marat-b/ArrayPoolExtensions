@@ -132,7 +132,7 @@ namespace ArrayPoolExtensions
             //return chars;
         }
 
-        [Benchmark]
+        //[Benchmark]
         public void SpanIndexOfWithArrayPoolCount()
         {
             int startPosition = 0;
@@ -306,20 +306,20 @@ namespace ArrayPoolExtensions
         //    Console.WriteLine(pool[0]);
         //}
 
-        [Benchmark]
+        [Benchmark(Baseline =true)]
         public void StringReplace()
         {
             string text2 = text.Replace(replaceable, substitute);
         }
 
-        //[Benchmark]
+        [Benchmark]
         public void StringPoolz()
         {
             //var strPool = new StringPool(2048);
             //string textPool = StringPool.Shared.GetOrAdd(text);
-            _strPool.Add(replaceable);
-            var spanText = _strPool.GetOrAdd(text).Replace(replaceable, substitute).AsSpan();
-            var text2 = _strPool.GetOrAdd(spanText).AsSpan();
+            //_strPool.Add(replaceable);
+            var spanText = _strPool.GetOrAdd(text.Replace(replaceable, substitute)); //.AsSpan(); // .Replace(replaceable, substitute)
+            //var text2 = _strPool.GetOrAdd(spanText); //.AsSpan();
             //Console.WriteLine(text2);
             //StringPool.Shared.Reset();
             _strPool.Reset();
